@@ -1,12 +1,27 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 import sqlite3
+from functools import wraps
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///students.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production'
 db = SQLAlchemy(app)
+
+# Login credentials (hardcoded sederhana)
+ADMIN_USERNAME = 'admin'
+ADMIN_PASSWORD = 'admin123'
+
+# Decorator untuk memproteksi route
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -17,13 +32,35 @@ class Student(db.Model):
     def __repr__(self):
         return f'<Student {self.name}>'
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session['logged_in'] = True
+            session['username'] = username
+            return redirect(url_for('index'))
+        else:
+            return render_template('login.html', error='Username atau password salah')
+
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
 @app.route('/')
+@login_required
 def index():
     # RAW Query
     students = db.session.execute(text('SELECT * FROM student')).fetchall()
     return render_template('index.html', students=students)
 
 @app.route('/add', methods=['POST'])
+@login_required
 def add_student():
     name = request.form['name']
     age = request.form['age']
@@ -46,7 +83,8 @@ def add_student():
     return redirect(url_for('index'))
 
 
-@app.route('/delete/<string:id>') 
+@app.route('/delete/<string:id>')
+@login_required
 def delete_student(id):
     # RAW Query
     db.session.execute(text(f"DELETE FROM student WHERE id={id}"))
@@ -55,6 +93,7 @@ def delete_student(id):
 
 
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
 def edit_student(id):
     if request.method == 'POST':
         name = request.form['name']
