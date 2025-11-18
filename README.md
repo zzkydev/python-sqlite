@@ -20,18 +20,18 @@ Ikuti langkah-langkah di bawah ini untuk menginstal dan menjalankan proyek ini s
 
 1. **Clone repository** (jika diperlukan):
    ```bash
-   git clone <repository-url>
-   cd project_folder
+   git clone https://github.com/zzkydev/python-sqlite.git
+   cd python-sqlite
    ```
 
 2. **Buat virtual environment**:
    ```bash
-   python3 -m venv .venv
+   python -m venv .venv
    ```
 
 3. **Aktifkan virtual environment**:
    ```bash
-   source .venv/bin/activate
+   .venv\Scripts\activate
    ```
 
 4. **Instal dependensi**:
