@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 import sqlite3
 from functools import wraps
+import html
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///students.db'
@@ -62,9 +63,9 @@ def index():
 @app.route('/add', methods=['POST'])
 @login_required
 def add_student():
-    name = request.form['name']
-    age = request.form['age']
-    grade = request.form['grade']
+    name = html.escape(request.form['name'])
+    age = request.form['age']               # tetap sama
+    grade = html.escape(request.form['grade'])
     
 
     connection = sqlite3.connect('instance/students.db')
@@ -96,9 +97,9 @@ def delete_student(id):
 @login_required
 def edit_student(id):
     if request.method == 'POST':
-        name = request.form['name']
+        name = html.escape(request.form['name'])
         age = request.form['age']
-        grade = request.form['grade']
+        grade = html.escape(request.form['grade'])
         
         # RAW Query
         db.session.execute(text(f"UPDATE student SET name='{name}', age={age}, grade='{grade}' WHERE id={id}"))
