@@ -82,8 +82,29 @@ def add_student():
     connection.commit()
     connection.close()
     return redirect(url_for('index'))
+  
+@app.route('/add', methods=['POST'])
+@login_required
+def add_student():
+    name = html.escape(request.form['name'])
+    age = request.form['age']
+    grade = html.escape(request.form['grade'])
+    
+    # KODE BARU YANG AMAN: Menggunakan parameterized query
+    connection = sqlite3.connect('instance/students.db')
+    cursor = connection.cursor()
+    
+    query = "INSERT INTO student (name, age, grade) VALUES (?, ?, ?)"
+    cursor.execute(query, (name, age, grade))
+    
+    connection.commit()
+    connection.close()
+    return redirect(url_for('index'))
 
-# code sebelumnya
+
+
+
+# code sebelumnya (bisa di sqli via url)
 # @app.route('/delete/<string:id>')
 # @login_required
 # def delete_student(id):
@@ -92,7 +113,8 @@ def add_student():
 #     db.session.commit()
 #     return redirect(url_for('index'))
 
-# Code setlah
+
+# Code setlah (tidak bisa di sqli via url)
 @app.route('/delete/<string:id>')
 @login_required
 def delete_student(id):
