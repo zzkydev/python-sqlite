@@ -116,7 +116,7 @@ def add_student():
 
 
 # Code setlah (tidak bisa di sqli via url)
-@app.route('/delete/<string:id>')
+@app.route('/delete/<string:id>', methods=['POST'])
 @login_required
 def delete_student(id):
     query = text("DELETE FROM student WHERE id = :id_param")
@@ -143,6 +143,12 @@ def edit_student(id):
         # RAW Query
         student = db.session.execute(text(f"SELECT * FROM student WHERE id={id}")).fetchone()
         return render_template('edit.html', student=student)
+#Route untuk CSRF
+@app.route('/csrf-attack')
+def csrf_attack():
+    # Serve halaman CSRF attack untuk demonstrasi
+    file_path = os.path.join(os.getcwd(), 'jahatkali.html')
+    return send_file(file_path)
 
 # if __name__ == '__main__':
 #     with app.app_context():
